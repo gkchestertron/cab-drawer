@@ -1,0 +1,70 @@
+<DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            canvas {
+                border: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas width=800 height=600 id="canvas"></canvas>
+        <hr />
+        <input id="width-and-height" type="text" placeholder="enter width,height" />
+    </body>
+    <script type="text/javascript">
+        function CabDrawer(padWidth, padHeight, shelfWidth, scale) {
+            document.getElementById('width-and-height').addEventListener('change', this.drawTheThing.bind(this));
+            this.input      = document.getElementById('width-and-height');
+            this.canvas     = document.getElementById('canvas');
+            this.context    = canvas.getContext('2d');
+            this.pad        = { width: padWidth, height: padHeight }; // not scaled
+            this.scale      = scale;
+            this.shelfWidth = shelfWidth * scale;
+            this.shelfHyp   = Math.sqrt(Math.pow(shelfWidth, 2) * 2);
+        }
+
+        CabDrawer.prototype.drawTheThing = function () {
+            var vals      = this.input.value.split(','),
+                width     = parseInt(vals[0]) * this.scale,
+                height    = parseInt(vals[1]) * this.scale;
+
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.context.strokeRect(this.pad.width, this.pad.height, width, height);
+            this.drawLines(width, height);
+        }
+
+        CabDrawer.prototype.drawLines = function (width, height) {
+            var path      = new Path2D(),
+                startX    = 0,
+                startY    = height,
+                intersect = this.getIntersect(startX, startY, width, height);
+
+            path.moveTo(startX + this.pad.width, startY + this.pad.height);
+            path.lineTo(this.pad.width + intersect.x, this.pad.height + intersect.y);
+            path.closePath();
+            this.context.stroke(path);
+        }
+
+        CabDrawer.prototype.getIntersect = function (startX, startY, width, height) {
+            var xDiff = width - startX,
+                yDiff = startY,
+                x, y;
+                
+            if (xDiff < yDiff) {
+                x = width,
+                y = -xDiff + startY;
+            }
+            else {
+                x = yDiff;
+                y = 0;
+            }
+
+            return { x: x, y: y };
+        }
+        
+        cabDrawer = new CabDrawer(10, 10, 12, 5);
+    </script>
+</html>
+
+
